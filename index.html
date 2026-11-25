@@ -278,6 +278,70 @@
   .vote-btn[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:#241a02}
   .vote-count{font-family:"Space Mono",monospace;font-size:.8rem}
 
+  /* ---------- Chat ---------- */
+  .chat-panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:22px;
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .chat-status{
+    display:flex;align-items:center;gap:8px;padding:13px 18px;
+    border-bottom:1px solid var(--line);font-size:.9rem;font-weight:600;color:var(--ink-2);
+  }
+  .chat-status .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);flex:none}
+  .chat-status.on .dot{background:var(--teal)}
+  .chat-status.off .dot{background:var(--red)}
+  .chat-status .online{margin-left:auto;font-family:"Space Mono",monospace;font-size:.8rem;color:var(--ink-3);font-weight:400}
+  .chat-nick{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    padding:13px 18px;border-bottom:1px solid var(--line);background:var(--panel-2);
+  }
+  .chat-nick label{font-size:.9rem;font-weight:700}
+  .chat-nick input{
+    flex:1 1 150px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
+    color:var(--ink);font:inherit;font-size:1rem;padding:10px 12px;min-height:2.9rem;outline:none;
+  }
+  .chat-nick input:disabled{opacity:.6}
+  .chat-nick input:focus{border-color:var(--accent)}
+  .chat-nick .btn{min-height:2.9rem}
+  .chat-messages{
+    height:340px;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;
+  }
+  .chat-empty{color:var(--ink-3);text-align:center;margin:auto;font-size:.95rem;line-height:1.55;padding:20px 0}
+  .msg{max-width:82%;align-self:flex-start}
+  .msg-head{display:flex;gap:8px;align-items:baseline;margin-bottom:3px}
+  .msg-name{font-weight:700;font-size:.86rem;color:var(--accent)}
+  .msg-time{font-family:"Space Mono",monospace;font-size:.72rem;color:var(--ink-3)}
+  .msg-text{
+    margin:0;background:var(--panel-2);border:1px solid var(--line);border-radius:4px 14px 14px 14px;
+    padding:9px 13px;font-size:.97rem;line-height:1.45;overflow-wrap:anywhere;white-space:pre-wrap;
+  }
+  .msg.mine{align-self:flex-end}
+  .msg.mine .msg-head{flex-direction:row-reverse}
+  .msg.mine .msg-text{
+    background:color-mix(in srgb, var(--accent) 13%, var(--panel));
+    border-color:color-mix(in srgb, var(--accent) 35%, var(--line));
+    border-radius:14px 4px 14px 14px;
+  }
+  .chat-composer{
+    display:flex;gap:10px;padding:13px 18px;border-top:1px solid var(--line);
+    background:var(--panel-2);align-items:flex-start;
+  }
+  .chat-composer .field{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}
+  .chat-composer input{
+    width:100%;border:1px solid var(--line);border-radius:12px;background:var(--panel);
+    color:var(--ink);font:inherit;font-size:1rem;padding:12px 14px;min-height:3.1rem;outline:none;
+  }
+  .chat-composer input:focus{border-color:var(--accent)}
+  .chat-count{font-size:.74rem;color:var(--ink-3);font-family:"Space Mono",monospace;text-align:right}
+  .chat-send{min-height:3.1rem;padding:12px 22px;flex:none}
+  @media (max-width:580px){
+    .chat-messages{height:300px;padding:14px 12px}
+    .msg{max-width:92%}
+    .chat-composer{padding:12px}
+    .chat-nick{padding:12px}
+    .chat-send{padding:12px 18px}
+  }
+
   /* ---------- Add game ---------- */
   .add-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
   .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
@@ -458,6 +522,35 @@
       <p>Ideas listas para construirse. Vota por la que quieras primero.</p>
     </div>
     <div class="soon-grid" id="soon-grid"></div>
+  </section>
+
+  <section aria-labelledby="chat-h">
+    <div class="section-head">
+      <h2 id="chat-h">💬 Chat de la sala</h2>
+      <p>El lobby de la sala: saluda, reta a alguien o pide la revancha.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="chat-status" id="chat-status" role="status">
+        <span class="dot"></span>
+        <span id="chat-status-text">Conectando…</span>
+        <span class="online" id="chat-online"></span>
+      </div>
+      <div class="chat-nick">
+        <label for="chat-nick-input">Tu apodo</label>
+        <input id="chat-nick-input" type="text" maxlength="14" placeholder="Ej. Decro" autocomplete="off" />
+        <button class="btn ghost" type="button" id="chat-nick-btn">Guardar apodo</button>
+      </div>
+      <div class="chat-messages" id="chat-messages" aria-label="Mensajes del chat">
+        <p class="chat-empty" id="chat-empty">Todavía no hay mensajes.<br>Sé el primero en saludar a la sala.</p>
+      </div>
+      <form class="chat-composer" id="chat-form">
+        <div class="field">
+          <input id="chat-input" type="text" maxlength="200" placeholder="Escribe un mensaje para la sala…" aria-label="Escribe un mensaje para la sala" autocomplete="off" />
+          <span class="chat-count" id="chat-count">0/200</span>
+        </div>
+        <button class="btn primary chat-send" type="submit" id="chat-send">Enviar</button>
+      </form>
+    </div>
   </section>
 
   <section aria-labelledby="add-h">
@@ -838,6 +931,250 @@ document.querySelector(".mood-row").addEventListener("click", function(e){
 
 render();
 renderSoon();
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* ---------- Chat global de la sala (Firebase, proyecto de DUELO NEURAL) ---------- */
+(function(){
+  var firebaseConfig = {
+    apiKey: "AIzaSyBKbc_r74_4WgUfaSpkA8T03-owE-Nhu8U",
+    authDomain: "duelo-neural.firebaseapp.com",
+    databaseURL: "https://duelo-neural-default-rtdb.firebaseio.com",
+    projectId: "duelo-neural",
+    storageBucket: "duelo-neural.firebasestorage.app",
+    messagingSenderId: "1039278674418",
+    appId: "1:1039278674418:web:a37f6bb6c6144e9b641b6b"
+  };
+
+  var statusEl = document.getElementById("chat-status");
+  var statusText = document.getElementById("chat-status-text");
+  var onlineEl = document.getElementById("chat-online");
+  var listEl = document.getElementById("chat-messages");
+  var emptyEl2 = document.getElementById("chat-empty");
+  var form = document.getElementById("chat-form");
+  var input = document.getElementById("chat-input");
+  var countEl2 = document.getElementById("chat-count");
+  var nickInput = document.getElementById("chat-nick-input");
+  var nickBtn = document.getElementById("chat-nick-btn");
+
+  var db = null, msgsRef = null, connected = false, listening = false;
+  var lastSentAt = 0;
+  var sentKeys = {};
+  var msgCount = 0;
+
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+  /* ----- Apodo ----- */
+  var apodo = (lsGet("salaChat.apodo") || "").slice(0,14);
+  var nickEditing = false;
+  if(apodo){
+    nickInput.value = apodo;
+    nickInput.disabled = true;
+    nickBtn.textContent = "Cambiar apodo";
+  } else {
+    var prefill = (lsGet("pesadillaRetro.nombreJugador.v1") || "").slice(0,14);
+    nickInput.value = prefill;
+    nickEditing = true;
+    nickBtn.textContent = "Guardar apodo";
+  }
+  function saveNick(){
+    var v = nickInput.value.trim().slice(0,14);
+    if(!v){ showToast("Escribe un apodo primero."); nickInput.focus(); return false; }
+    apodo = v;
+    nickInput.value = v;
+    lsSet("salaChat.apodo", v);
+    nickEditing = false;
+    nickInput.disabled = true;
+    nickBtn.textContent = "Cambiar apodo";
+    return true;
+  }
+  nickBtn.addEventListener("click", function(){
+    if(nickEditing){
+      if(saveNick()) showToast("Apodo guardado: "+apodo);
+    } else {
+      nickEditing = true;
+      nickInput.disabled = false;
+      nickBtn.textContent = "Guardar apodo";
+      nickInput.focus();
+      nickInput.select();
+    }
+  });
+  nickInput.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){ e.preventDefault(); if(saveNick()) showToast("Apodo guardado: "+apodo); }
+  });
+
+  /* ----- Estado de conexión ----- */
+  function setStatus(mode, text){
+    statusEl.classList.remove("on","off");
+    if(mode) statusEl.classList.add(mode);
+    statusText.textContent = text;
+  }
+  function setOffline(){
+    connected = false;
+    setStatus("off", "Sin conexión — revisa tu internet");
+    onlineEl.textContent = "";
+  }
+
+  /* ----- Mensajes (siempre texto plano, nunca HTML) ----- */
+  function fmtTime(ts){
+    var d = new Date(typeof ts === "number" ? ts : Date.now());
+    var h = d.getHours(), m = d.getMinutes();
+    return (h<10?"0":"")+h+":"+(m<10?"0":"")+m;
+  }
+  function nearBottom(){
+    return listEl.scrollHeight - listEl.scrollTop - listEl.clientHeight < 90;
+  }
+  function addMessage(key, data){
+    if(!data || typeof data.text !== "string") return;
+    if(document.getElementById("chatmsg-"+key)) return;
+    var wasNear = nearBottom();
+    var mine = !!sentKeys[key] || (apodo && data.name === apodo);
+    var wrap = document.createElement("div");
+    wrap.className = "msg" + (mine ? " mine" : "");
+    wrap.id = "chatmsg-"+key;
+    var head = document.createElement("div");
+    head.className = "msg-head";
+    var name = document.createElement("span");
+    name.className = "msg-name";
+    name.textContent = (typeof data.name === "string" && data.name) ? data.name.slice(0,14) : "Alguien";
+    var time = document.createElement("span");
+    time.className = "msg-time";
+    time.textContent = fmtTime(data.ts);
+    var body = document.createElement("p");
+    body.className = "msg-text";
+    body.textContent = data.text.slice(0,200);
+    head.appendChild(name);
+    head.appendChild(time);
+    wrap.appendChild(head);
+    wrap.appendChild(body);
+    listEl.appendChild(wrap);
+    msgCount++;
+    if(emptyEl2) emptyEl2.style.display = "none";
+    if(wasNear || mine) listEl.scrollTop = listEl.scrollHeight;
+  }
+  function removeMessage(key){
+    var el = document.getElementById("chatmsg-"+key);
+    if(el){ el.remove(); msgCount--; }
+    if(msgCount <= 0 && emptyEl2) emptyEl2.style.display = "";
+  }
+
+  /* ----- Firebase ----- */
+  function startListening(){
+    if(listening || !db) return;
+    listening = true;
+    msgsRef = db.ref("rooms/salaChat/messages");
+    msgsRef.limitToLast(50).on("child_added", function(snap){ addMessage(snap.key, snap.val()); });
+    msgsRef.limitToLast(50).on("child_removed", function(snap){ removeMessage(snap.key); });
+
+    var presenceRef = db.ref("rooms/salaChat/presence");
+    var myPresence = null;
+    db.ref(".info/connected").on("value", function(snap){
+      if(snap.val() === true){
+        connected = true;
+        setStatus("on", "Conectado");
+        if(!myPresence){
+          myPresence = presenceRef.push();
+          myPresence.onDisconnect().remove();
+          myPresence.set(true);
+        }
+      } else {
+        setOffline();
+      }
+    });
+    presenceRef.on("value", function(snap){
+      if(!connected) return;
+      var n = snap.numChildren();
+      onlineEl.textContent = n === 1 ? "1 persona en la sala" : n + " personas en la sala";
+    });
+  }
+
+  function loadSdk(cb){
+    if(window.firebase && firebase.database){ cb(true); return; }
+    var urls = [
+      "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js",
+      "https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"
+    ];
+    var i = 0;
+    (function next(){
+      if(i >= urls.length){ cb(!!(window.firebase && firebase.database)); return; }
+      var s = document.createElement("script");
+      s.src = urls[i++];
+      s.onload = next;
+      s.onerror = function(){ cb(false); };
+      document.head.appendChild(s);
+    })();
+  }
+
+  function initChat(){
+    if(db) { startListening(); return true; }
+    if(!window.firebase || !firebase.database) return false;
+    try{
+      if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+    }catch(e){
+      return false;
+    }
+    startListening();
+    return true;
+  }
+
+  function connect(){
+    if(initChat()) return;
+    loadSdk(function(ok){
+      if(!ok || !initChat()) setOffline();
+    });
+  }
+
+  /* ----- Enviar ----- */
+  function doSend(){
+    var text = input.value.trim().slice(0,200);
+    if(!text) return;
+    if(!apodo){
+      if(nickInput.value.trim()){
+        if(!saveNick()) return;
+      } else {
+        showToast("Elige un apodo para poder escribir en el chat.");
+        nickInput.focus();
+        return;
+      }
+    }
+    var now = Date.now();
+    if(now - lastSentAt < 2000){
+      showToast("Espera un momento");
+      return;
+    }
+    if(!db || !connected){
+      setOffline();
+      connect();
+      showToast("Sin conexión — revisa tu internet");
+      return;
+    }
+    lastSentAt = now;
+    var ref = msgsRef.push({
+      name: apodo,
+      text: text,
+      ts: firebase.database.ServerValue.TIMESTAMP
+    });
+    sentKeys[ref.key] = true;
+    input.value = "";
+    countEl2.textContent = "0/200";
+    input.focus();
+  }
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    doSend();
+  });
+  input.addEventListener("input", function(){
+    countEl2.textContent = input.value.length + "/200";
+  });
+
+  setStatus("", "Conectando…");
+  connect();
+})();
 </script>
 </body>
 </html>
