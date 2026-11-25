@@ -214,6 +214,7 @@
   .cover-c4{background:linear-gradient(135deg,#3d2c07,#b07d10 55%,#5c430a)}
   .cover-c5{background:linear-gradient(135deg,#07282b,#0ca678 60%,#0b3d3a)}
   .cover-c6{background:linear-gradient(135deg,#1a1408,#8a6d1b 55%,#2e2410)}
+  .cover-c7{background:linear-gradient(135deg,#101d33,#2f5d8a 55%,#173a56)}
   .card-body{padding:18px;display:flex;flex-direction:column;gap:9px;flex:1}
   .card-body h3{font-family:"Bricolage Grotesque",sans-serif;font-size:1.32rem;font-weight:800;margin:0;line-height:1.1}
   .card-body p{margin:0;color:var(--ink-2);font-size:.94rem;line-height:1.55;flex:1}
@@ -415,8 +416,8 @@
         <p class="lede">Todos los juegos que hemos hecho para jugar juntos, en un solo lugar. Los que ya están listos se abren desde aquí, y cada juego nuevo que creemos se suma a la colección.</p>
       </div>
       <div class="stats" aria-label="Resumen de la sala">
-        <div class="stat"><b id="stat-total">5</b><span>en la sala</span></div>
-        <div class="stat"><b>5</b><span>multijugador</span></div>
+        <div class="stat"><b id="stat-total">6</b><span>en la sala</span></div>
+        <div class="stat"><b>6</b><span>multijugador</span></div>
         <div class="stat"><b>2</b><span>en camino</span></div>
       </div>
     </div>
@@ -671,6 +672,22 @@ var GAMES = [
     controls:"Clic / toque para mover piezas y jugar cartas",
     glyph:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M9 4.5h6"/><path d="M8 21h8"/><path d="M9.5 21c0-3 1-4.5 1-7a4.5 4.5 0 1 1 3 0c0 2.5 1 4 1 7"/><path d="M7 21h10"/></svg>',
     url:"https://thedecro3312-ux.github.io/ajedrez-diferente/"
+  },
+  {
+    id:"emulador-gba",
+    name:"Emulador GBA",
+    genre:"Emulador retro",
+    cats:["multi"],
+    players:"2", minP:2, maxP:2,
+    cover:"cover-c7",
+    status:"live", statusText:"En línea",
+    platform:"Navegador · PC y móvil",
+    desc:"Un emulador de Game Boy Advance en el navegador: cada quien carga su propio ROM .gba y a jugar. Trae salas multijugador con código de 4 letras para 2 jugadores por cable link, aunque ojo: el juego en partida por cable link todavía está en desarrollo y no se promete como totalmente funcional.",
+    long:"Emulador de Game Boy Advance que corre en el navegador, sin instalar nada: no trae ningún juego dentro, así que cada quien carga su propio ROM en formato .gba desde su dispositivo y juega al momento. Para jugar con un amigo trae salas multijugador con código de 4 letras para 2 jugadores, pensadas como el cable link de la consola original. Siendo honestos: esa parte todavía está en desarrollo — las salas se pueden crear y unir, pero el juego en partida por cable link aún no se promete como totalmente funcional. En solitario, el emulador sí está listo para jugar.",
+    how:["Abre el emulador y carga tu propio ROM .gba desde tu dispositivo: no trae juegos dentro.","Para jugar con un amigo, uno crea la sala y comparte el código de 4 letras; el otro se une con ese código.","Los dos necesitan el mismo ROM y estar conectados al mismo tiempo.","El cable link en partida todavía está en desarrollo: tómalo como una función en pruebas, no como algo totalmente funcional."],
+    controls:"Teclado o controles táctiles en pantalla · Carga de ROM .gba",
+    glyph:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="10.5" rx="5"/><rect x="9" y="9.8" width="6" height="5" rx="1"/><path d="M6.2 10.8v2.8M4.8 12.2h2.8"/><circle cx="17.6" cy="11.4" r=".9" fill="#fff" stroke="none"/><circle cx="19" cy="14" r=".9" fill="#fff" stroke="none"/></svg>',
+    url:"https://thedecro3312-ux.github.io/emulador-gba/"
   }
 ];
 
@@ -884,7 +901,7 @@ document.getElementById("feat-random").addEventListener("click", pickRandom);
 var MOODS = {
   sustos:{ name:"Pesadilla Retro 3D", text:"Una Sadako que acecha desde las teles, niebla por todos lados y screamers con grito real. Si son 3, uno puede ser la Sadako y cazar a los demás." },
   competir:{ name:"Duelo Neural", text:"Duelos de cartas con 352 cartas y 20 mazos: en línea con código de sala, contra la IA o en el Torneo Neural de 6 rondas. Ideal para decidir quién manda en el grupo." },
-  tranquilo:{ name:"Dibuja y Adivina", text:"Dibujar y adivinar sin presión: uno traza, los demás adivinan y se ríen un rato. Y si luego quieren subir el ritmo, la sala queda abierta para una partida rápida." }
+  tranquilo:{ name:"Emulador GBA", text:"Carga tu propio ROM .gba y revive un clásico de Game Boy Advance a tu ritmo, sin presión. Y si se anima un amigo, hay salas con código de 4 letras para 2 jugadores, aunque el cable link en partida todavía está en desarrollo." }
 };
 document.querySelector(".mood-row").addEventListener("click", function(e){
   var btn = e.target.closest(".mood"); if(!btn) return;
