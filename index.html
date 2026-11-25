@@ -417,7 +417,7 @@
       </div>
       <div class="stats" aria-label="Resumen de la sala">
         <div class="stat"><b id="stat-total">6</b><span>en la sala</span></div>
-        <div class="stat"><b>6</b><span>multijugador</span></div>
+        <div class="stat"><b>5</b><span>multijugador</span></div>
         <div class="stat"><b>2</b><span>en camino</span></div>
       </div>
     </div>
@@ -677,14 +677,14 @@ var GAMES = [
     id:"emulador-gba",
     name:"Emulador GBA",
     genre:"Emulador retro",
-    cats:["multi"],
-    players:"2", minP:2, maxP:2,
+    cats:[],
+    players:"1", minP:1, maxP:1,
     cover:"cover-c7",
     status:"live", statusText:"En línea",
     platform:"Navegador · PC y móvil",
-    desc:"Un emulador de Game Boy Advance en el navegador: cada quien carga su propio ROM .gba y a jugar. Trae salas multijugador con código de 4 letras para 2 jugadores por cable link, aunque ojo: el juego en partida por cable link todavía está en desarrollo y no se promete como totalmente funcional.",
-    long:"Emulador de Game Boy Advance que corre en el navegador, sin instalar nada: no trae ningún juego dentro, así que cada quien carga su propio ROM en formato .gba desde su dispositivo y juega al momento. Para jugar con un amigo trae salas multijugador con código de 4 letras para 2 jugadores, pensadas como el cable link de la consola original. Siendo honestos: esa parte todavía está en desarrollo — las salas se pueden crear y unir, pero el juego en partida por cable link aún no se promete como totalmente funcional. En solitario, el emulador sí está listo para jugar.",
-    how:["Abre el emulador y carga tu propio ROM .gba desde tu dispositivo: no trae juegos dentro.","Para jugar con un amigo, uno crea la sala y comparte el código de 4 letras; el otro se une con ese código.","Los dos necesitan el mismo ROM y estar conectados al mismo tiempo.","El cable link en partida todavía está en desarrollo: tómalo como una función en pruebas, no como algo totalmente funcional."],
+    desc:"Un emulador de Game Boy Advance en el navegador: cada quien carga su propio ROM .gba y a jugar. Por ahora es para 1 jugador: el multijugador por cable link está en desarrollo y todavía no sincroniza las partidas.",
+    long:"Emulador de Game Boy Advance que corre en el navegador, sin instalar nada: no trae ningún juego dentro, así que cada quien carga su propio ROM en formato .gba desde su dispositivo y juega al momento. Por ahora se juega en solitario, para 1 jugador, y en ese modo el emulador sí está listo para jugar. El multijugador por cable link está en desarrollo: hay salas con código de 4 letras, pero el cable link todavía no sincroniza las partidas, así que aún no se puede jugar con un amigo de verdad.",
+    how:["Abre el emulador y carga tu propio ROM .gba desde tu dispositivo: no trae juegos dentro.","Juega en solitario: por ahora el emulador es para 1 jugador.","El multijugador por cable link está en desarrollo y todavía no sincroniza las partidas; cuando esté listo se avisará aquí mismo."],
     controls:"Teclado o controles táctiles en pantalla · Carga de ROM .gba",
     glyph:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="10.5" rx="5"/><rect x="9" y="9.8" width="6" height="5" rx="1"/><path d="M6.2 10.8v2.8M4.8 12.2h2.8"/><circle cx="17.6" cy="11.4" r=".9" fill="#fff" stroke="none"/><circle cx="19" cy="14" r=".9" fill="#fff" stroke="none"/></svg>',
     url:"https://thedecro3312-ux.github.io/emulador-gba/"
@@ -948,6 +948,14 @@ renderSoon();
   var lastSentAt = 0;
   var sentKeys = {};
   var msgCount = 0;
+  /* Presencia: un solo nodo por pestaña, con clave estable de sesión. Antes se
+     creaba con push() en cada arranque y los nodos de sesiones muertas quedaban
+     contando como personas fantasma (el contador saltaba de 1 a 5). */
+  var sessionId = "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  var presenceRef = null, myPresenceRef = null;
+  var lastPresenceCount = 0;
+  var presenceSeen = false;
+  var pendingText = null;
 
   function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
@@ -997,10 +1005,34 @@ renderSoon();
     if(mode) statusEl.classList.add(mode);
     statusText.textContent = text;
   }
-  function setOffline(){
-    connected = false;
+  /* El estado "Sin conexión" solo se muestra si la caída dura más de 5 s.
+     Firebase emite desconexiones momentáneas al renegociar el socket, al
+     cambiar de red o al volver la pestaña a primer plano; antes cada una
+     pintaba el aviso rojo y borraba el contador, y el estado parpadeaba
+     entre "Conectado" y "Sin conexión". */
+  var offlineTimer = null;
+  var offlineShown = false;
+  function showOfflineNow(){
+    offlineShown = true;
     setStatus("off", "Sin conexión — revisa tu internet");
     onlineEl.textContent = "";
+  }
+  function scheduleOffline(){
+    if(offlineTimer || offlineShown) return;
+    offlineTimer = setTimeout(function(){
+      offlineTimer = null;
+      showOfflineNow();
+    }, 5000);
+  }
+  function cancelOffline(){
+    if(offlineTimer){ clearTimeout(offlineTimer); offlineTimer = null; }
+    offlineShown = false;
+  }
+  function renderPresenceCount(){
+    if(offlineShown || !presenceSeen) return;
+    onlineEl.textContent = lastPresenceCount === 1
+      ? "1 persona en la sala"
+      : lastPresenceCount + " personas en la sala";
   }
 
   /* ----- Mensajes (siempre texto plano, nunca HTML) ----- */
@@ -1038,57 +1070,111 @@ renderSoon();
     listEl.appendChild(wrap);
     msgCount++;
     if(emptyEl2) emptyEl2.style.display = "none";
+    /* Recorte local y silencioso: solo sale el mensaje más antiguo cuando hay
+       más de 60 en pantalla. Ningún mensaje visible desaparece por eventos de
+       Firebase (ver la nota en startListening sobre child_removed). */
+    var nodes = listEl.getElementsByClassName("msg");
+    while(nodes.length > 60){ nodes[0].remove(); msgCount--; }
     if(wasNear || mine) listEl.scrollTop = listEl.scrollHeight;
-  }
-  function removeMessage(key){
-    var el = document.getElementById("chatmsg-"+key);
-    if(el){ el.remove(); msgCount--; }
-    if(msgCount <= 0 && emptyEl2) emptyEl2.style.display = "";
   }
 
   /* ----- Firebase ----- */
+  var heartbeatTimer = null;
+  function startHeartbeat(){
+    stopHeartbeat();
+    heartbeatTimer = setInterval(function(){
+      if(connected && myPresenceRef){
+        myPresenceRef.update({ ts: firebase.database.ServerValue.TIMESTAMP });
+      }
+    }, 25000);
+  }
+  function stopHeartbeat(){
+    if(heartbeatTimer){ clearInterval(heartbeatTimer); heartbeatTimer = null; }
+  }
+
   function startListening(){
     if(listening || !db) return;
     listening = true;
     msgsRef = db.ref("rooms/salaChat/messages");
+    /* Una sola consulta para los mensajes y SIN listener de child_removed:
+       con limitToLast, Firebase dispara child_removed cuando un mensaje sale
+       de la ventana de 50 (al llegar otro más nuevo) y al resincronizar tras
+       una reconexión, no solo cuando alguien borra un mensaje. Escucharlo
+       hacía que los mensajes aparecieran y desaparecieran solos. El recorte
+       a 60 nodos se hace localmente en addMessage, y addMessage ya ignora
+       claves repetidas, así que una resincronización no duplica ni parpadea. */
     msgsRef.limitToLast(50).on("child_added", function(snap){ addMessage(snap.key, snap.val()); });
-    msgsRef.limitToLast(50).on("child_removed", function(snap){ removeMessage(snap.key); });
 
-    var presenceRef = db.ref("rooms/salaChat/presence");
-    var myPresence = null;
+    presenceRef = db.ref("rooms/salaChat/presence");
+    myPresenceRef = presenceRef.child(sessionId);
     db.ref(".info/connected").on("value", function(snap){
       if(snap.val() === true){
         connected = true;
+        cancelOffline();
         setStatus("on", "Conectado");
-        if(!myPresence){
-          myPresence = presenceRef.push();
-          myPresence.onDisconnect().remove();
-          myPresence.set(true);
-        }
+        renderPresenceCount();
+        /* En CADA (re)conexión hay que republicar la presencia y registrar de
+           nuevo el onDisconnect: cuando la conexión anterior cayó, el servidor
+           ya ejecutó el onDisconnect y borró el nodo, así que el guardia
+           anterior ("solo si no existe") dejaba al usuario fuera del contador
+           tras cualquier reconexión. */
+        myPresenceRef.onDisconnect().remove();
+        myPresenceRef.set({ ts: firebase.database.ServerValue.TIMESTAMP });
+        startHeartbeat();
+        flushPending();
       } else {
-        setOffline();
+        connected = false;
+        stopHeartbeat();
+        scheduleOffline();
       }
     });
     presenceRef.on("value", function(snap){
-      if(!connected) return;
-      var n = snap.numChildren();
-      onlineEl.textContent = n === 1 ? "1 persona en la sala" : n + " personas en la sala";
+      var now = Date.now();
+      var n = 0;
+      snap.forEach(function(child){
+        var v = child.val();
+        /* Solo cuentan presencias con latido reciente (< 90 s). Los nodos
+           fantasma de sesiones que cerraron sin despedirse — y los nodos
+           viejos sin timestamp del formato anterior — ya no inflan el
+           contador. El propio nodo cuenta siempre mientras la pestaña vive. */
+        if(child.key === sessionId) n++;
+        else if(v && typeof v.ts === "number" && now - v.ts < 90000) n++;
+      });
+      lastPresenceCount = n;
+      presenceSeen = true;
+      renderPresenceCount();
+    });
+    /* Al salir de la página, la presencia se borra al momento en vez de
+       esperar a que Firebase detecte la desconexión. */
+    window.addEventListener("pagehide", function(){
+      if(myPresenceRef){ try{ myPresenceRef.remove(); }catch(e){} }
     });
   }
 
+  /* Carga del SDK a lo sumo una vez por intento: si connect() se llamaba
+     durante un parpadeo de conexión, cada llamada inyectaba otra copia de los
+     scripts de Firebase y reiniciaba la conexión, alimentando el parpadeo. */
+  var sdkCallbacks = null;
   function loadSdk(cb){
     if(window.firebase && firebase.database){ cb(true); return; }
+    if(sdkCallbacks){ sdkCallbacks.push(cb); return; }
+    sdkCallbacks = [cb];
+    function done(ok){
+      var cbs = sdkCallbacks;
+      sdkCallbacks = null;
+      for(var j = 0; j < cbs.length; j++) cbs[j](ok);
+    }
     var urls = [
       "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js",
       "https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"
     ];
     var i = 0;
     (function next(){
-      if(i >= urls.length){ cb(!!(window.firebase && firebase.database)); return; }
+      if(i >= urls.length){ done(!!(window.firebase && firebase.database)); return; }
       var s = document.createElement("script");
       s.src = urls[i++];
       s.onload = next;
-      s.onerror = function(){ cb(false); };
+      s.onerror = function(){ done(false); };
       document.head.appendChild(s);
     })();
   }
@@ -1109,7 +1195,7 @@ renderSoon();
   function connect(){
     if(initChat()) return;
     loadSdk(function(ok){
-      if(!ok || !initChat()) setOffline();
+      if(!ok || !initChat()) showOfflineNow();
     });
   }
 
@@ -1132,21 +1218,40 @@ renderSoon();
       return;
     }
     if(!db || !connected){
-      setOffline();
+      /* Un parpadeo momentáneo no debe tragarse el mensaje: queda en cola y
+         se envía solo al reconectar (flushPending). Antes el intento se
+         descartaba y además pintaba el estado "Sin conexión" al instante. */
+      pendingText = text;
+      input.value = "";
+      countEl2.textContent = "0/200";
       connect();
-      showToast("Sin conexión — revisa tu internet");
+      showToast(offlineShown
+        ? "Sin conexión: tu mensaje se enviará al reconectar."
+        : "Reconectando… tu mensaje se enviará en cuanto vuelva la conexión.");
       return;
     }
-    lastSentAt = now;
+    sendNow(text);
+    input.value = "";
+    countEl2.textContent = "0/200";
+    input.focus();
+  }
+
+  function sendNow(text){
+    if(!db || !msgsRef) return;
+    lastSentAt = Date.now();
     var ref = msgsRef.push({
       name: apodo,
       text: text,
       ts: firebase.database.ServerValue.TIMESTAMP
     });
     sentKeys[ref.key] = true;
-    input.value = "";
-    countEl2.textContent = "0/200";
-    input.focus();
+  }
+  function flushPending(){
+    if(pendingText && connected){
+      var t = pendingText;
+      pendingText = null;
+      sendNow(t);
+    }
   }
 
   form.addEventListener("submit", function(e){
