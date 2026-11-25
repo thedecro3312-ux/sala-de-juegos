@@ -415,7 +415,7 @@
         <p class="lede">Todos los juegos que hemos hecho para jugar juntos, en un solo lugar. Los que ya están listos se abren desde aquí, y cada juego nuevo que creemos se suma a la colección.</p>
       </div>
       <div class="stats" aria-label="Resumen de la sala">
-        <div class="stat"><b id="stat-total">7</b><span>en la sala</span></div>
+        <div class="stat"><b id="stat-total">5</b><span>en la sala</span></div>
         <div class="stat"><b>5</b><span>multijugador</span></div>
         <div class="stat"><b>2</b><span>en camino</span></div>
       </div>
@@ -431,7 +431,6 @@
       <label class="players-select">Jugadores
         <select id="players-filter" aria-label="Filtrar por número de jugadores">
           <option value="any">Todos</option>
-          <option value="1">Solo yo</option>
           <option value="2">2</option>
           <option value="3">3 o más</option>
         </select>
@@ -446,7 +445,6 @@
       <button class="chip" type="button" data-filter="multi" aria-pressed="false">Multijugador</button>
       <button class="chip" type="button" data-filter="terror" aria-pressed="false">Terror</button>
       <button class="chip" type="button" data-filter="cartas" aria-pressed="false">Cartas</button>
-      <button class="chip" type="button" data-filter="solo" aria-pressed="false">Un jugador</button>
       <button class="chip" type="button" data-filter="fav" aria-pressed="false">Mis favoritos</button>
     </div>
   </div>
@@ -673,38 +671,6 @@ var GAMES = [
     controls:"Clic / toque para mover piezas y jugar cartas",
     glyph:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M9 4.5h6"/><path d="M8 21h8"/><path d="M9.5 21c0-3 1-4.5 1-7a4.5 4.5 0 1 1 3 0c0 2.5 1 4 1 7"/><path d="M7 21h10"/></svg>',
     url:"https://thedecro3312-ux.github.io/ajedrez-diferente/"
-  },
-  {
-    id:"niebla",
-    name:"La Niebla",
-    genre:"Terror PS2",
-    cats:["terror","solo"],
-    players:"1", minP:1, maxP:1,
-    cover:"cover-c3",
-    status:"live", statusText:"Jugable",
-    platform:"PC y móvil",
-    desc:"Un pueblo de noche con niebla espesa y look de PS2: pocos polígonos, baja resolución y grano de película. Tu linterna parpadea, algo alto y oscuro te caza, y necesitas 4 páginas para escapar.",
-    long:"Terror en solitario con estética PS2 y menú clásico. Explora el pueblo con una linterna que parpadea, encuentra las 4 páginas repartidas por el mapa y escapa mientras un monstruo alto y oscuro te caza entre la niebla.",
-    how:["Encuentra las 4 páginas escondidas en el pueblo.","Si la linterna parpadea más de lo normal, algo está cerca: corre.","Escapa al reunir las 4 páginas."],
-    controls:"WASD + ratón, Shift correr, E agarrar · En móvil: joystick y botones",
-    glyph:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"><path d="M3 15c3-2 6 2 9 0s6 2 9 0"/><path d="M3 19c3-2 6 2 9 0s6 2 9 0"/><path d="M9 11V5l6-2v6"/><circle cx="15" cy="11" r="2"/></svg>',
-    url:null
-  },
-  {
-    id:"quiz",
-    name:"Tu Quiz Diario",
-    genre:"Quiz",
-    cats:["solo"],
-    players:"1", minP:1, maxP:1,
-    cover:"cover-c4",
-    status:"live", statusText:"Nuevo cada día",
-    platform:"Navegador",
-    desc:"Un quiz de personalidad fresco cada día, sin tema fijo: respondes, descubres tu resultado y queda guardado en el archivo con todos los anteriores, con opción de repetirlos.",
-    long:"Cada día llega un quiz de personalidad nuevo, de un tema distinto cada vez. Al terminar ves tu resultado, y el archivo conserva todos los quizzes con tus respuestas y resultados, además de las repeticiones junto al original.",
-    how:["Abre el quiz de hoy y responde con lo primero que te venga.","Al final descubres tu resultado.","En el archivo puedes repetir cualquier quiz anterior."],
-    controls:"Toque o clic para responder",
-    glyph:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3A2.6 2.6 0 1 1 12 12.4V14"/><circle cx="12" cy="17.4" r=".4" fill="#fff"/></svg>',
-    url:null
   }
 ];
 
@@ -722,6 +688,8 @@ var SOON = [
 ];
 
 var state = { filter:"all", query:"", players:"any", favs:{}, votes:{} };
+/* Ignora favoritos de juegos que ya no están en la sala (sin entradas fantasma) */
+Object.keys(state.favs).forEach(function(k){ var ok=false; for(var i=0;i<GAMES.length;i++) if(GAMES[i].id===k) ok=true; if(!ok) delete state.favs[k]; });
 var grid = document.getElementById("grid");
 var emptyEl = document.getElementById("empty");
 var countEl = document.getElementById("grid-count");
@@ -752,7 +720,7 @@ function matches(g){
   if(state.players==="2" && !(g.minP<=2 && g.maxP>=2)) return false;
   if(state.players==="3" && !(g.maxP>=3)) return false;
   if(state.query){
-    var hay = (g.name+" "+g.genre+" "+g.desc).toLowerCase();
+    var hay = (g.name+" "+g.genre).toLowerCase();
     if(hay.indexOf(state.query)===-1) return false;
   }
   return true;
@@ -914,9 +882,9 @@ document.getElementById("feat-random").addEventListener("click", pickRandom);
 
 /* Tonight picker */
 var MOODS = {
-  sustos:{ name:"Pesadilla Retro 3D", text:"Niebla, una Sadako que acecha desde las teles y screamers con grito real. Si son 3, uno puede ser la Sadako; si van solos, La Niebla también es gran opción para un rato de tensión PS2." },
+  sustos:{ name:"Pesadilla Retro 3D", text:"Una Sadako que acecha desde las teles, niebla por todos lados y screamers con grito real. Si son 3, uno puede ser la Sadako y cazar a los demás." },
   competir:{ name:"Duelo Neural", text:"Duelos de cartas con 352 cartas y 20 mazos: en línea con código de sala, contra la IA o en el Torneo Neural de 6 rondas. Ideal para decidir quién manda en el grupo." },
-  tranquilo:{ name:"Tu Quiz Diario", text:"Un quiz de personalidad nuevo cada día, sin presión y en pocos minutos. Y si luego quieren subir el ritmo, la sala queda abierta para una partida rápida." }
+  tranquilo:{ name:"Dibuja y Adivina", text:"Dibujar y adivinar sin presión: uno traza, los demás adivinan y se ríen un rato. Y si luego quieren subir el ritmo, la sala queda abierta para una partida rápida." }
 };
 document.querySelector(".mood-row").addEventListener("click", function(e){
   var btn = e.target.closest(".mood"); if(!btn) return;
