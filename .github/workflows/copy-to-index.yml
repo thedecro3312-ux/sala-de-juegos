@@ -1,0 +1,18 @@
+name: copy-to-index
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cp sala-de-juegos-new.html index.html
+          rm sala-de-juegos-new.html
+          git config user.name "thedecro3312-ux"
+          git config user.email "thedecro3312@gmail.com"
+          git add -A
+          git commit -m "Publish Sala hub: emulator card 2 players" || echo "nothing to commit"
+          git push
