@@ -198,6 +198,8 @@
   .card.picked{outline:3px solid var(--amber);outline-offset:2px}
   .cover{position:relative;aspect-ratio:16/10;overflow:hidden;flex:none;background:#0d0e13}
   .cover .cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block;z-index:1}
+  /* Portadas cuyo título impreso empieza pegado arriba: la imagen arranca bajo la etiqueta de género para que no la tape */
+  .cover.pad .cover-img{top:42px;height:calc(100% - 42px)}
   .cover .genre,.cover .players{z-index:2}
   .cover .glyph{position:absolute;right:14px;bottom:8px;width:84px;height:84px;opacity:.95}
   .cover .genre{
@@ -682,6 +684,7 @@ var GAMES = [
     cats:["multi"],
     players:"2–6", minP:2, maxP:6,
     coverClass:"cover-c5",
+    coverPad:true,
     cover:"portadas/dibuja-y-adivina.png",
     shots:["portadas/dibuja-y-adivina-captura.png"],
     status:"live", statusText:"En línea",
@@ -700,6 +703,7 @@ var GAMES = [
     cats:["multi"],
     players:"2–4", minP:2, maxP:4,
     coverClass:"cover-c6",
+    coverPad:true,
     cover:"portadas/ajedrez-cruzado.png",
     shots:["portadas/ajedrez-cruzado-ficha1.jpg","portadas/ajedrez-cruzado-ficha2.jpg"],
     status:"live", statusText:"En línea",
@@ -809,7 +813,7 @@ function render(){
     card.className = "card"; card.id = "card-"+g.id;
     var fav = !!state.favs[g.id];
     card.innerHTML =
-      '<div class="cover '+g.coverClass+'">'+
+      '<div class="cover '+g.coverClass+(g.coverPad?' pad':'')+'">'+
         '<span class="glyph" aria-hidden="true">'+g.glyph+'</span>'+
         (g.cover ? '<img class="cover-img" src="'+g.cover+'" alt="Portada de '+g.name+'" loading="lazy" onerror="this.remove()">' : '')+
         '<span class="genre">'+g.genre+'</span>'+
