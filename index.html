@@ -720,15 +720,15 @@ var GAMES = [
     name:"Emulador GBA",
     genre:"Emulador retro",
     cats:["multi"],
-    players:"2", minP:1, maxP:2,
+    players:"1–4", minP:1, maxP:4,
     coverClass:"cover-c7",
     cover:"portadas/emulador-gba.webp",
     shots:["portadas/emulador-gba-ficha1.jpg","portadas/emulador-gba-ficha2.jpg"],
     status:"live", statusText:"En línea",
     platform:"Navegador · PC y móvil",
-    desc:"Un emulador de Game Boy Advance en el navegador: cada quien carga su propio ROM .gba y a jugar. El modo Dual por cable link ya funciona entre dos dispositivos en la misma WiFi; jugar entre redes distintas sigue pendiente. Y el modo en solitario sigue disponible.",
-    long:"Emulador de Game Boy Advance que corre en el navegador, sin instalar nada: no trae ningún juego dentro, así que cada quien carga su propio ROM en formato .gba desde su dispositivo y juega al momento. El modo Dual por cable link ya funciona: dos dispositivos conectados a la misma WiFi pueden enlazarse y jugar juntos, cada jugador con su propio ROM .gba. Jugar entre redes distintas todavía está pendiente, porque aún no hay un relay que conecte las partidas fuera de la red local. Y el modo en solitario sigue disponible para jugar solo cuando quieras.",
-    how:["Abre el emulador y carga tu propio ROM .gba desde tu dispositivo: no trae juegos dentro.","Modo Dual: conecta dos dispositivos a la misma WiFi, cada quien con su propio ROM .gba, y enlázalos por cable link. Entre redes distintas todavía no se puede: aún no hay relay.","O juega en solitario, sin conectar con nadie: el modo para 1 jugador sigue disponible."],
+    desc:"Un emulador de Game Boy Advance en el navegador: cada quien carga su propio ROM .gba y a jugar. Es de 1 a 4 jugadores por cable link entre dispositivos en la misma WiFi; jugar entre redes distintas sigue pendiente. Y el modo en solitario sigue disponible.",
+    long:"Emulador de Game Boy Advance que corre en el navegador, sin instalar nada: no trae ningún juego dentro, así que cada quien carga su propio ROM en formato .gba desde su dispositivo y juega al momento. Es para 1 a 4 jugadores: el modo por cable link ya funciona con hasta cuatro dispositivos conectados a la misma WiFi, cada jugador con su propio ROM .gba. Jugar entre redes distintas todavía está pendiente, porque aún no hay un relay que conecte las partidas fuera de la red local. Y el modo en solitario sigue disponible para jugar solo cuando quieras.",
+    how:["Abre el emulador y carga tu propio ROM .gba desde tu dispositivo: no trae juegos dentro.","Cable link: conecta de 2 a 4 dispositivos a la misma WiFi, cada quien con su propio ROM .gba, y enlázalos. Entre redes distintas todavía no se puede: aún no hay relay.","O juega en solitario, sin conectar con nadie: el modo para 1 jugador sigue disponible."],
     controls:"Teclado o controles táctiles en pantalla · Carga de ROM .gba",
     glyph:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="10.5" rx="5"/><rect x="9" y="9.8" width="6" height="5" rx="1"/><path d="M6.2 10.8v2.8M4.8 12.2h2.8"/><circle cx="17.6" cy="11.4" r=".9" fill="#fff" stroke="none"/><circle cx="19" cy="14" r=".9" fill="#fff" stroke="none"/></svg>',
     url:"https://thedecro3312-ux.github.io/emulador-gba/"
@@ -1009,7 +1009,7 @@ document.getElementById("feat-random").addEventListener("click", pickRandom);
 var MOODS = {
   sustos:{ name:"Pesadilla Retro 3D", text:"Una Sadako que acecha desde las teles, niebla por todos lados y screamers con grito real. Si son 3, uno puede ser la Sadako y cazar a los demás." },
   competir:{ name:"Duelo Neural", text:"Duelos de cartas con 352 cartas y 20 mazos: en línea con código de sala, contra la IA o en el Torneo Neural de 6 rondas. Ideal para decidir quién manda en el grupo." },
-  tranquilo:{ name:"Emulador GBA", text:"Carga tu propio ROM .gba y revive un clásico de Game Boy Advance a tu ritmo, sin presión. Y si se anima un amigo, hay salas con código de 4 letras para 2 jugadores, aunque el cable link en partida todavía está en desarrollo." }
+  tranquilo:{ name:"Emulador GBA", text:"Carga tu propio ROM .gba y revive un clásico de Game Boy Advance a tu ritmo, sin presión. Es para 1 a 4 jugadores: si se animan amigos, pueden enlazarse por cable link entre dispositivos en la misma WiFi." }
 };
 document.querySelector(".mood-row").addEventListener("click", function(e){
   var btn = e.target.closest(".mood"); if(!btn) return;
