@@ -1,0 +1,18 @@
+name: copy-to-index
+on:
+  workflow_dispatch:
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cp sala-de-juegos.html index.html
+          rm sala-de-juegos.html
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix cover crop second row" || true
+          git push
