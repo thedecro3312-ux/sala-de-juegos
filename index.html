@@ -217,6 +217,7 @@
   .cover-c5{background:linear-gradient(135deg,#07282b,#0ca678 60%,#0b3d3a)}
   .cover-c6{background:linear-gradient(135deg,#1a1408,#8a6d1b 55%,#2e2410)}
   .cover-c7{background:linear-gradient(135deg,#101d33,#2f5d8a 55%,#173a56)}
+  .cover-c8{background:linear-gradient(135deg,#0e2a3d,#1f7a8c 55%,#57b7c9)}
   .card-body{padding:18px;display:flex;flex-direction:column;gap:9px;flex:1}
   .card-body h3{font-family:"Bricolage Grotesque",sans-serif;font-size:1.32rem;font-weight:800;margin:0;line-height:1.1}
   .card-body p{margin:0;color:var(--ink-2);font-size:.94rem;line-height:1.55;flex:1}
@@ -433,8 +434,8 @@
         <p class="lede">Todos los juegos que hemos hecho para jugar juntos, en un solo lugar. Los que ya están listos se abren desde aquí, y cada juego nuevo que creemos se suma a la colección.</p>
       </div>
       <div class="stats" aria-label="Resumen de la sala">
-        <div class="stat"><b id="stat-total">6</b><span>en la sala</span></div>
-        <div class="stat"><b>6</b><span>multijugador</span></div>
+        <div class="stat"><b id="stat-total">7</b><span>en la sala</span></div>
+        <div class="stat"><b>7</b><span>multijugador</span></div>
         <div class="stat"><b>2</b><span>en camino</span></div>
       </div>
     </div>
@@ -727,6 +728,24 @@ var GAMES = [
     controls:"Teclado o controles táctiles en pantalla · Carga de ROM .gba",
     glyph:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="10.5" rx="5"/><rect x="9" y="9.8" width="6" height="5" rx="1"/><path d="M6.2 10.8v2.8M4.8 12.2h2.8"/><circle cx="17.6" cy="11.4" r=".9" fill="#fff" stroke="none"/><circle cx="19" cy="14" r=".9" fill="#fff" stroke="none"/></svg>',
     url:"https://thedecro3312-ux.github.io/emulador-gba/"
+  },
+  {
+    id:"flappy-bird",
+    name:"Flappy Bird Multijugador",
+    genre:"Arcade",
+    cats:["multi"],
+    players:"1–2", minP:1, maxP:2,
+    coverClass:"cover-c8",
+    cover:"portadas/flappy-bird-multijugador.png",
+    shots:["portadas/flappy-bird-multijugador-ficha1.jpg","portadas/flappy-bird-multijugador-ficha2.jpg"],
+    status:"live", statusText:"Jugable",
+    platform:"Navegador · PC y móvil",
+    desc:"Carrera entre tuberías: aletea, esquiva y sé el último pájaro en el aire o el que más tuberías cruce. Contra la CPU, en duelo local de 2 o en solitario.",
+    long:"Una carrera entre tuberías con 4 pájaros: tú contra Luna, Rayo y Brisa, cada uno con su nivel. 1 punto por tubería cruzada vivo; chocar te saca de la ronda y gana quien tenga más puntos, o quien sobreviva más en caso de empate. 3 modos: carrera contra la CPU, duelo local de 2 jugadores en el mismo teclado (Espacio y W, más Luna y Brisa de CPU) y solo para batir tu récord. 6 ubicaciones aleatorias por ronda (Pradera, Atardecer, Noche, Playa, Bosque y Desierto), 7 misiones y 7 accesorios desbloqueables, y tu progreso se guarda en el navegador. En el celular se juega tocando cada mitad de la pantalla. Pausa con P y velocidad Normal o Rápida.",
+    how:["Carrera: tú contra Luna, Rayo y Brisa (CPU); 1 punto por tubería cruzada vivo y chocar te saca de la ronda.","Duelo local: 2 jugadores en el mismo teclado, Espacio y W, más Luna y Brisa de CPU.","Solo: corre sin rivales humanos y bate tu récord.","Pausa con P; velocidad Normal o Rápida."],
+    controls:"Espacio / W para aletear · En móvil: tocar cada mitad de la pantalla · P pausa",
+    glyph:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="11" cy="13" rx="6.5" ry="5"/><path d="M16.5 11.5 21 10l-3.4 2.6L21 15l-4.5-1.5"/><circle cx="13.5" cy="11.5" r=".6" fill="#fff"/><path d="M8.5 15.5c1.8.4 3.6-.2 4.8-1.6"/><path d="M6 8.5c1.2-1.4 3-2 4.8-1.7"/></svg>',
+    url:"flappy-bird-multijugador.html"
   }
 ];
 
