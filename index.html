@@ -196,7 +196,9 @@
   }
   .card:hover{transform:translateY(-3px)}
   .card.picked{outline:3px solid var(--amber);outline-offset:2px}
-  .cover{position:relative;height:150px;overflow:hidden;flex:none}
+  .cover{position:relative;aspect-ratio:16/10;overflow:hidden;flex:none;background:#0d0e13}
+  .cover .cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 25%;display:block;z-index:1}
+  .cover .genre,.cover .players{z-index:2}
   .cover .glyph{position:absolute;right:14px;bottom:8px;width:84px;height:84px;opacity:.95}
   .cover .genre{
     position:absolute;left:14px;top:14px;
@@ -378,6 +380,21 @@
   .detail span{display:block;font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px}
   .detail b{font-size:.98rem}
   .modal .cta-row{margin-top:20px}
+  .modal-cover{background:#0b0d12;border-radius:14px;overflow:hidden;margin-bottom:16px}
+  .modal-cover:empty{display:none}
+  .modal-cover img{display:block;width:100%;max-height:340px;object-fit:contain}
+  .shots-wrap{margin-top:18px}
+  .shots-wrap h4{margin:0 0 8px;font-size:.95rem}
+  .shots{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+  .shot{flex:none;border:0;padding:0;background:#0b0d12;border-radius:10px;overflow:hidden;cursor:pointer;line-height:0}
+  .shot img{width:200px;height:120px;object-fit:cover;display:block}
+  .lightbox{
+    position:fixed;inset:0;background:rgba(5,6,10,.93);z-index:90;
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:100%;max-height:88vh;object-fit:contain;border-radius:10px;box-shadow:var(--shadow-lg)}
+  .lightbox .close-btn{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.14);color:#fff;border-color:transparent}
   .howto{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
   .howto h4{margin:0 0 8px;font-size:.95rem}
   .howto ul{margin:0;padding-left:20px;color:var(--ink-2);line-height:1.65;font-size:.94rem}
@@ -572,6 +589,7 @@
 
 <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal">
+    <div class="modal-cover" id="modal-cover"></div>
     <div class="modal-top">
       <div>
         <div class="badge-row" id="modal-badges" style="margin-bottom:10px"></div>
@@ -580,6 +598,10 @@
       <button class="close-btn" id="modal-close" type="button" aria-label="Cerrar">✕</button>
     </div>
     <p class="desc" id="modal-desc"></p>
+    <div class="shots-wrap" id="modal-shots-wrap">
+      <h4>Capturas del juego</h4>
+      <div class="shots" id="modal-shots"></div>
+    </div>
     <div class="detail-grid" id="modal-details"></div>
     <div class="howto" id="modal-howto-wrap">
       <h4>Cómo se juega</h4>
@@ -587,6 +609,11 @@
     </div>
     <div class="cta-row" id="modal-cta"></div>
   </div>
+</div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Captura en grande">
+  <button class="close-btn" id="lightbox-close" type="button" aria-label="Cerrar captura">✕</button>
+  <img id="lightbox-img" alt="Captura del juego en grande">
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -599,7 +626,9 @@ var GAMES = [
     genre:"Terror 3D",
     cats:["multi","terror"],
     players:"1–3", minP:1, maxP:3,
-    cover:"cover-c2",
+    coverClass:"cover-c2",
+    cover:"portadas/pesadilla-retro-3d.png",
+    shots:["portadas/pesadilla-retro-3d-captura.png"],
     status:"live", statusText:"Jugable",
     platform:"PC y Android",
     desc:"La Sadako no caza: acecha. Sale de las teles, apaga las luces, cierra puertas y se congela si la miras de frente… hasta que está demasiado cerca. Completen los rituales para escapar o juega como ella.",
@@ -615,7 +644,9 @@ var GAMES = [
     genre:"Cartas",
     cats:["multi","cartas"],
     players:"2", minP:2, maxP:2,
-    cover:"cover-c1",
+    coverClass:"cover-c1",
+    cover:"portadas/duelo-neural.png",
+    shots:["portadas/duelo-neural-ficha1.jpg","portadas/duelo-neural-ficha2.jpg"],
     status:"live", statusText:"En línea",
     platform:"Navegador · PC y móvil",
     desc:"El juego de cartas de Decro: 352 cartas, 20 mazos y 18 arquetipos de IA, del Virus de Glitch Supremo a los archivos RAR con Rangos. Duelos en línea con código de sala, contra la IA o el Torneo Neural de 6 rondas.",
@@ -631,7 +662,9 @@ var GAMES = [
     genre:"Terror clásico",
     cats:["multi","terror"],
     players:"3", minP:3, maxP:3,
-    cover:"cover-c2",
+    coverClass:"cover-c2",
+    cover:"portadas/pesadilla-retro-2d.png",
+    shots:["portadas/pesadilla-retro-2d-captura.png"],
     status:"live", statusText:"En línea",
     platform:"PC y Android",
     desc:"La versión original estilo Doom: raycasting, niebla y linterna. Un asesino contra 2 sobrevivientes que reparan generadores para abrir las puertas de salida, con ganchos, rescates y pallets para aturdir.",
@@ -647,7 +680,9 @@ var GAMES = [
     genre:"Dibujo y adivinanzas",
     cats:["multi"],
     players:"2–6", minP:2, maxP:6,
-    cover:"cover-c5",
+    coverClass:"cover-c5",
+    cover:"portadas/dibuja-y-adivina.png",
+    shots:["portadas/dibuja-y-adivina-captura.png"],
     status:"live", statusText:"En línea",
     platform:"Navegador · PC y móvil",
     desc:"Uno dibuja y los demás adivinan contra reloj: más de 170 palabras en 6 categorías, pistas de letras y puntos por acertar rápido. Cuatro modos: Fiesta pasa-y-juega, Adivina el Trazo, Lienzo Libre y en línea con código de sala.",
@@ -663,7 +698,9 @@ var GAMES = [
     genre:"Estrategia",
     cats:["multi"],
     players:"2–4", minP:2, maxP:4,
-    cover:"cover-c6",
+    coverClass:"cover-c6",
+    cover:"portadas/ajedrez-cruzado.png",
+    shots:["portadas/ajedrez-cruzado-ficha1.jpg","portadas/ajedrez-cruzado-ficha2.jpg"],
     status:"live", statusText:"En línea",
     platform:"Navegador · PC y móvil",
     desc:"Ajedrez para 2 a 4: a 2 jugadores, el tablero clásico 8×8; a 3 o 4, el tablero en cruz de 14×14 con 4 ejércitos (Rojo, Azul, Verde y Dorado), todos contra todos: jaque mate elimina y gana el último rey en pie. Niebla de guerra, cartas con poderes y modo en línea con código de sala.",
@@ -679,7 +716,9 @@ var GAMES = [
     genre:"Emulador retro",
     cats:["multi"],
     players:"2", minP:1, maxP:2,
-    cover:"cover-c7",
+    coverClass:"cover-c7",
+    cover:"portadas/emulador-gba.webp",
+    shots:["portadas/emulador-gba-ficha1.jpg","portadas/emulador-gba-ficha2.jpg"],
     status:"live", statusText:"En línea",
     platform:"Navegador · PC y móvil",
     desc:"Un emulador de Game Boy Advance en el navegador: cada quien carga su propio ROM .gba y a jugar. El modo Dual por cable link ya funciona entre dos dispositivos en la misma WiFi; jugar entre redes distintas sigue pendiente. Y el modo en solitario sigue disponible.",
@@ -751,9 +790,10 @@ function render(){
     card.className = "card"; card.id = "card-"+g.id;
     var fav = !!state.favs[g.id];
     card.innerHTML =
-      '<div class="cover '+g.cover+'">'+
-        '<span class="genre">'+g.genre+'</span>'+
+      '<div class="cover '+g.coverClass+'">'+
         '<span class="glyph" aria-hidden="true">'+g.glyph+'</span>'+
+        (g.cover ? '<img class="cover-img" src="'+g.cover+'" alt="Portada de '+g.name+'" loading="lazy" onerror="this.remove()">' : '')+
+        '<span class="genre">'+g.genre+'</span>'+
         '<span class="players">'+usersSVG()+' '+(g.minP===1&&g.maxP===1?'1 jugador':g.players+' jugadores')+'</span>'+
       '</div>'+
       '<div class="card-body">'+
@@ -808,6 +848,30 @@ function openModal(id){
     '<span class="badge soft">'+g.genre+'</span><span class="badge soft">'+(g.minP===1&&g.maxP===1?'1 jugador':g.players+' jugadores')+'</span>'+
     '<span class="badge '+(g.status==="live"?"soft":"hot")+'">'+g.statusText+'</span>';
   document.getElementById("modal-desc").textContent = g.long;
+  var mc = document.getElementById("modal-cover");
+  mc.style.display = "";
+  mc.innerHTML = g.cover
+    ? '<img src="'+g.cover+'" alt="Portada de '+g.name+'" onerror="this.parentNode.style.display=\'none\'">'
+    : "";
+  var swrap = document.getElementById("modal-shots-wrap");
+  var srow = document.getElementById("modal-shots");
+  srow.innerHTML = "";
+  if(g.shots && g.shots.length){
+    swrap.style.display = "";
+    g.shots.forEach(function(s){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "shot";
+      b.setAttribute("data-shot", s);
+      b.setAttribute("aria-label", "Ver captura de "+g.name+" en grande");
+      var im = document.createElement("img");
+      im.src = s; im.alt = "Captura de "+g.name; im.loading = "lazy";
+      im.onerror = function(){ b.remove(); if(!srow.children.length) swrap.style.display = "none"; };
+      b.appendChild(im);
+      srow.appendChild(b);
+    });
+  } else {
+    swrap.style.display = "none";
+  }
   document.getElementById("modal-details").innerHTML =
     '<div class="detail"><span>Jugadores</span><b>'+g.players+'</b></div>'+
     '<div class="detail"><span>Plataforma</span><b>'+g.platform+'</b></div>'+
@@ -831,7 +895,26 @@ function closeModal(){
 }
 document.getElementById("modal-close").addEventListener("click", closeModal);
 overlay.addEventListener("click", function(e){ if(e.target===overlay) closeModal(); });
-document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeModal(); });
+
+/* Lightbox de capturas */
+var lightbox = document.getElementById("lightbox");
+var lightboxImg = document.getElementById("lightbox-img");
+function openLightbox(src){
+  lightboxImg.src = src;
+  lightbox.classList.add("open");
+  document.getElementById("lightbox-close").focus();
+}
+function closeLightbox(){
+  lightbox.classList.remove("open");
+  lightboxImg.removeAttribute("src");
+}
+document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
+lightbox.addEventListener("click", function(e){ if(e.target===lightbox) closeLightbox(); });
+document.addEventListener("keydown", function(e){
+  if(e.key!=="Escape") return;
+  if(lightbox.classList.contains("open")) closeLightbox();
+  else closeModal();
+});
 
 /* Events (delegation) */
 document.addEventListener("click", function(e){
@@ -843,6 +926,8 @@ document.addEventListener("click", function(e){
   }
   var openBtn = e.target.closest("[data-open]");
   if(openBtn){ openModal(openBtn.getAttribute("data-open")); return; }
+  var shotBtn = e.target.closest("[data-shot]");
+  if(shotBtn){ openLightbox(shotBtn.getAttribute("data-shot")); return; }
   var favBtn = e.target.closest("[data-fav]");
   if(favBtn){
     var id = favBtn.getAttribute("data-fav");
